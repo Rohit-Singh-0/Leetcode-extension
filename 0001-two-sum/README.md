@@ -1,104 +1,102 @@
-As an expert software engineer, I've reviewed your accepted solution for the LeetCode "Two Sum" problem. Your code demonstrates a clear understanding of both a straightforward brute-force approach and the more efficient hash map technique, which directly addresses the follow-up question regarding sub-O(n^2) time complexity.
-
-Here's a detailed README for your solution:
+Here's a clean, well-formatted Markdown README for your "Two Sum" solution:
 
 ---
 
-# LeetCode: Two Sum (Easy)
+# LeetCode Problem: Two Sum
 
-## Problem Explanation
+## Problem Description
 
-The "Two Sum" problem asks us to find two distinct numbers within a given array of integers, `nums`, that add up to a specific `target` integer. We need to return the 0-based indices of these two numbers.
+The "Two Sum" problem asks us to find two distinct numbers within a given array of integers (`nums`) that add up to a specific `target` integer. We are required to return the *indices* of these two numbers.
 
 **Key constraints and assumptions:**
-*   Each input will have **exactly one solution**. This simplifies the problem as we don't need to handle cases with no solution or multiple solutions.
-*   We **cannot use the same element twice**. This means if `nums[i]` is one of the numbers, the other must be `nums[j]` where `i != j`.
-*   The answer can be returned in any order.
+*   Each input array will have exactly one valid solution.
+*   We cannot use the same element twice (meaning, we need two *different* elements from the array, even if they have the same value).
+*   The order of the returned indices does not matter.
 
 **Example:**
-`nums = [2, 7, 11, 15]`, `target = 9`
-Here, `nums[0]` (which is 2) + `nums[1]` (which is 7) equals 9. So, the output should be `[0, 1]`.
+If `nums = [2, 7, 11, 15]` and `target = 9`, the output should be `[0, 1]` because `nums[0] + nums[1] == 2 + 7 == 9`.
 
-## Step-by-Step Explanation
+## Step-by-Step Explanation of the Solution
 
-Your provided code includes two distinct approaches: a brute-force method and an optimized hash map method.
+The provided Python solution utilizes a hash map (dictionary) to efficiently solve the problem in a single pass. The core idea is to iterate through the array, and for each number, determine its "complement" (the value needed to reach the `target`). We then check if this complement has been encountered and stored in our hash map earlier in the iteration.
 
-### 1. Brute-Force Solution (Active Code)
+Here's a detailed breakdown of the code's logic:
 
-This approach checks every possible pair of numbers in the array to see if they sum up to the target.
+1.  **Initialize a Hash Map (`remainder_map`):**
+    *   An empty dictionary, `remainder_map`, is created. This map will store key-value pairs where the **key is a `complement_value`** (a number we *need* to find to complete a sum) and the **value is the `index`** of the number that *needs* this complement.
+    *   For instance, if `target` is 9 and we encounter the number `2` at index `0`, we will need `7` (`9 - 2`) to complete the sum. We'd then store `remainder_map[7] = 0`.
 
-1.  **Outer Loop (`i`)**: The code iterates through the `nums` array using an index `i` from the first element up to the second-to-last element. This `i` represents the index of the first number in a potential pair.
-2.  **Inner Loop (`j`)**: For each `i`, a nested loop iterates with an index `j` starting from `i + 1` up to the last element. This `j` represents the index of the second number. Starting `j` from `i + 1` is crucial:
-    *   It ensures that `i` and `j` are always different indices, satisfying the "cannot use the same element twice" constraint.
-    *   It avoids redundant checks (e.g., if `(nums[0], nums[1])` is checked, `(nums[1], nums[0])` will not be).
-3.  **Sum Check**: Inside the inner loop, the sum of `nums[i]` and `nums[j]` is calculated and compared to the `target`.
-4.  **Return**: If `nums[i] + nums[j]` equals `target`, the problem's condition is met. The function immediately returns a list containing `[i, j]`. Since the problem guarantees exactly one solution, this `return` statement will always be reached.
+2.  **Iterate Through the Array with Indices:**
+    *   The code uses `enumerate(nums)` to iterate through the `nums` array. This provides both the `index` (the current position of the number) and the `num` (the value itself) for each element.
 
-### 2. Optimal Solution - Using Hash Map (Commented Out Code)
+3.  **Check for the Complement:**
+    *   **`if num in remainder_map:`**: For the current `num`, the code checks if this `num` already exists as a *key* in our `remainder_map`.
+        *   If `num` is a key in `remainder_map`, it signifies that we previously encountered a number whose complement was `num`. In simpler terms, the current `num` is exactly the value needed to complete the `target` sum with a number we've already processed.
+        *   At this point, we have found our pair! The `current index` is one of the required indices, and the value associated with `num` in `remainder_map` (`remainder_map[num]`) is the index of its complement.
+        *   The function immediately `return [index, remainder_map[num]]`.
 
-This approach leverages a hash map (Python dictionary) to achieve much better time complexity by reducing the need for nested loops.
+4.  **Store Current Number's Complement for Future Checks:**
+    *   **`remainder_map[target - num] = index`**: If the current `num` is *not* found as a key in `remainder_map` (meaning it's not the complement of any previously seen number), we prepare for subsequent numbers.
+        *   We calculate the `complement` needed for the current `num`: `target - num`.
+        *   We then add this `complement` as a key to `remainder_map`, with its value being the `index` of the current `num`. This entry effectively states: "If we later encounter `(target - num)`, we know it pairs with `num` which was found at this `index`."
 
-1.  **Initialize `remainder_map`**: An empty dictionary, `remainder_map`, is created. This map will store `(complement_value: index)` pairs. The "complement value" for a number `num` is `target - num` (i.e., the value that `num` needs to sum up to `target`).
-2.  **Single Pass Iteration**: The code iterates through the `nums` array only once using `enumerate`, which provides both the `index` and the `num` itself for each element.
-3.  **Check for Complement**: For each `num`:
-    *   It checks if `num` is already a key in `remainder_map`.
-    *   If `num` is found in `remainder_map`, it means we previously encountered its corresponding "complement" (i.e., `target - num`) and stored its index. The current `num` is that missing complement. We have found our pair!
-    *   The function then returns `[index, remainder_map[num]]`. The `remainder_map[num]` value gives us the index of the number that, when combined with the current `num`, sums to `target`.
-4.  **Store Complement**: If `num` is *not* found in `remainder_map`, it means we haven't yet seen its pair. We calculate the `complement` needed for the current `num` (`target - num`). We then store this `complement` as a key in `remainder_map` with its current `index` as the value: `remainder_map[target - num] = index`. This entry essentially says: "If you ever encounter `target - num` later, know that its partner `num` was found at this `index`."
+5.  **Guaranteed Solution:**
+    *   The problem statement guarantees that "exactly one solution exists." This means the loop will always find a pair and return the result before it finishes iterating through the entire array. Therefore, no explicit handling for a "no solution found" scenario is needed.
 
 ## Complexity Analysis
 
-### 1. Brute-Force Solution
+### Time Complexity: O(n)
 
-*   **Time Complexity: O(n^2)**
-    *   The outer loop runs `n` times (where `n` is the length of `nums`).
-    *   The inner loop, in the worst case, runs approximately `n-1` times, then `n-2` times, and so on.
-    *   This results in roughly `n * (n-1) / 2` operations, which simplifies to O(n^2).
-    *   For an input array of 10,000 elements, this could mean up to 100 million operations, which might be slow for larger inputs.
-*   **Space Complexity: O(1)**
-    *   Only a constant amount of extra space is used for variables like `i`, `j`, and the return list, regardless of the input array's size.
+*   The code iterates through the `nums` array exactly once.
+*   Inside the loop, operations such as checking `if num in remainder_map` (hash map lookup) and `remainder_map[target - num] = index` (hash map insertion) take O(1) time on average. In the worst case, hash map operations can degrade to O(n) but this is rare with good hash functions and sufficient memory, and generally assumed O(1) for typical problem constraints.
+*   Since there are `n` elements in `nums`, and each element involves a constant number of O(1) operations, the overall time complexity is linear, O(n).
 
-### 2. Optimal Solution - Using Hash Map
+### Space Complexity: O(n)
 
-*   **Time Complexity: O(n)**
-    *   The code iterates through the `nums` array only once.
-    *   Inside the loop, dictionary operations (lookup `num in remainder_map` and insertion `remainder_map[target - num] = index`) take **average O(1) time**. In the worst-case scenario (due to hash collisions), these operations could degrade to O(n), but for typical inputs and Python's hash map implementation, O(1) average case holds true.
-    *   Thus, the total time complexity is proportional to `n` (number of elements), leading to O(n).
-*   **Space Complexity: O(n)**
-    *   In the worst case, if the desired pair is found at the very end of the array (or if the array only contains unique numbers and the pair is never found until the last iteration), the `remainder_map` might store up to `n-1` elements.
-    *   Each element stored in the hash map takes constant space.
-    *   Therefore, the space complexity is proportional to the number of elements in `nums`, which is O(n).
+*   In the worst-case scenario, if the solution pair is found towards the end of the array, the `remainder_map` could potentially store up to `n-1` key-value pairs before the solution is found.
+*   Each key-value pair consists of an integer (the complement) and an integer (its index).
+*   Therefore, the space required by the `remainder_map` scales linearly with the number of elements `n` in the input array, resulting in O(n) space complexity.
 
-## Edge Cases
+## Edge Cases and Considerations
 
-Both solutions effectively handle the problem constraints and implicit edge cases:
+The problem statement simplifies several aspects, making the provided hash map solution particularly robust:
 
-*   **Minimum Array Length (2)**: The problem states `nums.length >= 2`.
-    *   The brute-force solution implicitly relies on this for the inner loop (`j` starting at `i+1`) to have elements to iterate over.
-    *   The hash map solution naturally works with arrays of length 2 or more.
-*   **Duplicate Numbers within `nums` (e.g., `[3, 3]`, `target = 6`)**: Both solutions correctly handle scenarios where `nums` contains duplicate values.
-    *   The brute-force solution uses distinct indices `i` and `j`, so `nums[0]` and `nums[1]` in `[3, 3]` are treated as distinct elements.
-    *   The hash map solution stores indices. For `[3, 3]`, target `6`:
-        1.  When `num=3` (index `0`) is processed, `remainder_map[3]` becomes `0`.
-        2.  When `num=3` (index `1`) is processed, it finds `3` in `remainder_map` and correctly returns `[1, 0]`.
-*   **Negative Numbers and Large Values**: Python's arbitrary-precision integers mean that calculations with `-10^9 <= nums[i] <= 10^9` and `-10^9 <= target <= 10^9` are handled without overflow issues, and the logic remains sound regardless of the magnitude of the numbers.
-*   **"Exactly One Valid Answer Exists"**: This constraint is key.
-    *   It allows both algorithms to immediately return upon finding the first pair, simplifying the code.
-    *   It removes the need to handle scenarios where no solution exists or multiple solutions need to be aggregated.
-*   **"Cannot use the same element twice"**:
-    *   Brute-force: Enforced by `j` starting at `i + 1`.
-    *   Hash Map: When `num` is found in `remainder_map`, the `remainder_map[num]` gives the index of a *previously processed* element, which by definition is different from the current `index`.
+*   **"Exactly one solution exists"**: This simplifies the problem greatly, as we don't need to consider scenarios with multiple solutions or no solutions. The code is guaranteed to find and return a pair.
+*   **"You may not use the same element twice"**: Our approach naturally handles this. When `num` is found as a key in `remainder_map`, `remainder_map[num]` gives us the *index* of an *earlier-processed* element. The current `index` and `remainder_map[num]` will always be different, thus ensuring two distinct elements (by index) are used. For example, if `nums = [3, 3], target = 6`:
+    1.  When `num=3` at `index=0` is processed, `remainder_map[6-3]` (i.e., `remainder_map[3]`) is set to `0`.
+    2.  When the next `num=3` at `index=1` is processed, `num` (which is `3`) is found in `remainder_map`. The function then returns `[1, remainder_map[3]]`, which is `[1, 0]`, correctly using distinct elements at different indices.
+*   **Constraints on `nums.length`, `nums[i]`, and `target`**: The constraints (`2 <= nums.length <= 10^4` and values from `-10^9` to `10^9`) are well within limits for an `O(n)` solution and Python's arbitrary-precision integers and dictionary implementation.
 
-## Optimizations
+## Optimizations and Alternative Approaches
 
-The commented-out hash map solution is the primary optimization for this problem, explicitly addressing the follow-up question: "Can you come up with an algorithm that is less than O(n^2) time complexity?".
+While the provided one-pass hash map solution is considered the most optimal approach for this problem in terms of time complexity (achieving O(n)), it's beneficial to understand other methods and their trade-offs.
 
-*   **Hash Map Approach (O(n) time, O(n) space)**: As explained above, this method significantly reduces the time complexity from quadratic to linear. This is generally the most optimal solution for "Two Sum" when the requirement is to return indices. The trade-off is an increase in space complexity from O(1) to O(n), but this is often acceptable for the performance gain.
+1.  **Brute-Force Approach:**
+    *   **Logic:** Use two nested loops. The outer loop iterates from `i = 0` to `n-2`, and the inner loop iterates from `j = i+1` to `n-1`. For each pair `(nums[i], nums[j])`, check if `nums[i] + nums[j] == target`.
+    *   **Time Complexity:** O(n^2). For each of `n` elements, we might iterate through up to `n-1` other elements.
+    *   **Space Complexity:** O(1), as no extra data structures are used beyond a few variables.
+    *   **Trade-off:** Simplest to implement but significantly slower for larger inputs. This is often the first approach, but the problem's follow-up specifically asks for something better than O(n^2).
 
-**Alternative (less applicable for indices): Sorting + Two Pointers**
-Another approach that achieves O(n log n) time complexity is:
-1.  **Sort the array**: This takes O(n log n) time.
-2.  **Use two pointers**: One at the beginning, one at the end. Adjust them inward based on whether their sum is less than, greater than, or equal to the target. This takes O(n) time.
-*   **Drawback**: This approach usually destroys the original indices of the numbers. To return the *original* indices, you would need to store pairs of `(value, original_index)` and sort these pairs, adding complexity and often not outperforming the direct O(n) hash map solution in terms of practical implementation and clarity when indices are required. Therefore, for this specific problem, the hash map is generally preferred.
+2.  **Two-Pass Hash Map Approach:**
+    *   **Logic:**
+        1.  **First pass:** Iterate through the array and store each number and its index in a hash map (`num_value: index`).
+        2.  **Second pass:** Iterate through the array again. For each `num` at `index i`, calculate its `complement = target - num`. Check if `complement` exists in the hash map. If it does, and its stored index is *not* `i` (to ensure distinct elements as per problem statement), then return `[i, hash_map[complement]]`.
+    *   **Time Complexity:** O(n) (two passes, each O(n), so O(2n) which simplifies to O(n)).
+    *   **Space Complexity:** O(n) (to store the hash map).
+    *   **Trade-off:** Still O(n) time and O(n) space, similar to the one-pass approach, but slightly less efficient in practice due to two full passes over the array instead of one. The provided solution is a "one-pass" hash map approach, which is generally preferred.
 
-Your code effectively showcases the standard optimal solution using a hash map, making it a complete and insightful submission for the "Two Sum" problem.
+3.  **Sorting and Two-Pointers Approach:**
+    *   **Logic:**
+        1.  Create pairs of `(value, original_index)` for each number in `nums`. This is crucial because sorting would lose the original indices.
+        2.  Sort this list of pairs based on their `value`. This step typically takes O(n log n) time.
+        3.  Use two pointers, `left` starting at the beginning and `right` starting at the end of the sorted list.
+        4.  While `left < right`:
+            *   Calculate `current_sum = sorted_list[left].value + sorted_list[right].value`.
+            *   If `current_sum == target`, return `[sorted_list[left].original_index, sorted_list[right].original_index]`.
+            *   If `current_sum < target`, increment `left` (need a larger sum).
+            *   If `current_sum > target`, decrement `right` (need a smaller sum).
+    *   **Time Complexity:** O(n log n) primarily due to the sorting step. The two-pointer scan itself is O(n).
+    *   **Space Complexity:** O(n) to store the `(value, original_index)` pairs if a new list is created for sorting. Could be O(1) if modifying in-place (but this is usually not possible for this problem without losing original indices).
+    *   **Trade-off:** This approach is very efficient for finding pairs in *already sorted* arrays, but the initial sorting step makes it generally slower than the hash map approach for this specific problem (O(n log n) vs O(n)). It's a valuable technique for problems where space is a critical constraint and an O(n log n) time complexity is acceptable, or when the input is naturally sorted.
+
+---
